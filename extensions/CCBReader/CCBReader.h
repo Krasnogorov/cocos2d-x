@@ -26,7 +26,7 @@
     return NULL; \
 }
 
-#define kCCBVersion 4
+#define kCCBVersion 5
 
 enum {
     kCCBPropTypePosition = 0,
