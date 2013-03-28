@@ -7,6 +7,10 @@ enum {
     kCCNodeOnExit
 };
 
+typedef enum {
+      CC_GL_ALL = 0,
+} ccGLServerState;
+
 class CCNode : public CCObject
 {
     int     getZOrder();
@@ -20,7 +24,6 @@ class CCNode : public CCObject
     void    setScaleX(float newScaleX);
     float   getScaleY();
     void    setScaleY(float newScaleY);
-    CCPoint getPositionLua();
     void    getPosition(float* x = 0, float* y = 0);
     float   getPositionX();
     float   getPositionY();
@@ -47,9 +50,6 @@ class CCNode : public CCObject
     CCCamera*   getCamera();
     CCGridBase* getGrid();
     void    setGrid(CCGridBase* pGrid);
-    //CCPoint getAnchorPointInPixels();
-    //CCSize  getContentSizeInPixels();
-    //void    setContentSizeInPixels(CCSize sz);
 	CCPoint getAnchorPointInPoints();
     bool    isRunning();
     CCNode* getParent();
@@ -111,7 +111,7 @@ class CCNode : public CCObject
     void removeFromParentAndCleanup(bool cleanup);
     void removeChildByTag(int tag, bool cleanup);
 
-	void scheduleUpdate(void);
+	void scheduleUpdateWithPriorityLua(LUA_FUNCTION nHandler, int priority);
 	void unscheduleUpdate(void);
 
     void registerScriptHandler(LUA_FUNCTION funcID);

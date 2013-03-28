@@ -10,6 +10,8 @@
 /*
  * JS public API typedefs.
  */
+
+#include "jsprototypes.h"
 #include "jstypes.h"
 
 /*
@@ -37,6 +39,8 @@ namespace JS { class Value; }
  */
 #ifdef __cplusplus
 
+#define JS_NO_JSVAL_JSID_STRUCT_TYPES
+
 # if defined(DEBUG) && !defined(JS_NO_JSVAL_JSID_STRUCT_TYPES)
 #  define JS_USE_JSID_STRUCT_TYPES
 # endif
@@ -57,8 +61,6 @@ typedef ptrdiff_t jsid;
 typedef ptrdiff_t jsid;
 # define JSID_BITS(id) (id)
 #endif
-
-JS_BEGIN_EXTERN_C
 
 #ifdef WIN32
 typedef wchar_t   jschar;
@@ -106,8 +108,8 @@ typedef enum JSType {
 
 /* Dense index into cached prototypes and class atoms for standard objects. */
 typedef enum JSProtoKey {
-#define JS_PROTO(name,code,init) JSProto_##name = code,
-#include "jsproto.tbl"
+#define PROTOKEY_AND_INITIALIZER(name,code,init) JSProto_##name = code,
+    JS_FOR_EACH_PROTOTYPE(PROTOKEY_AND_INITIALIZER)
 #undef JS_PROTO
     JSProto_LIMIT
 } JSProtoKey;
@@ -162,6 +164,7 @@ typedef enum {
      * Trace kinds internal to the engine. The embedding can only them if it
      * implements JSTraceCallback.
      */
+    JSTRACE_IONCODE,
 #if JS_HAS_XML_SUPPORT
     JSTRACE_XML,
 #endif
@@ -200,6 +203,7 @@ typedef struct JSTracer                     JSTracer;
 
 #ifdef __cplusplus
 class                                       JSFlatString;
+class                                       JSStableString;  // long story
 class                                       JSString;
 #else
 typedef struct JSFlatString                 JSFlatString;
@@ -213,11 +217,9 @@ typedef JSBool                   JSCallOnceType;
 #endif
 typedef JSBool                 (*JSInitCallback)(void);
 
-JS_END_EXTERN_C
-
 #ifdef __cplusplus
 
-namespace JS {
+namespace js {
 
 template <typename T>
 class Rooted;
@@ -237,6 +239,7 @@ enum ThingRootKind
     THING_ROOT_PROPERTY_ID,
     THING_ROOT_VALUE,
     THING_ROOT_TYPE,
+    THING_ROOT_BINDINGS,
     THING_ROOT_LIMIT
 };
 
@@ -248,12 +251,18 @@ struct RootKind;
  * JSAPI users may use JSRooted... types without having the class definition
  * available.
  */
-template <> struct RootKind<JSObject *> { static ThingRootKind rootKind() { return THING_ROOT_OBJECT; }; };
-template <> struct RootKind<JSFunction *> { static ThingRootKind rootKind() { return THING_ROOT_OBJECT; }; };
-template <> struct RootKind<JSString *> { static ThingRootKind rootKind() { return THING_ROOT_STRING; }; };
-template <> struct RootKind<JSScript *> { static ThingRootKind rootKind() { return THING_ROOT_SCRIPT; }; };
-template <> struct RootKind<jsid> { static ThingRootKind rootKind() { return THING_ROOT_ID; }; };
-template <> struct RootKind<Value> { static ThingRootKind rootKind() { return THING_ROOT_VALUE; }; };
+template<typename T, ThingRootKind Kind>
+struct SpecificRootKind
+{
+    static ThingRootKind rootKind() { return Kind; }
+};
+
+template <> struct RootKind<JSObject *> : SpecificRootKind<JSObject *, THING_ROOT_OBJECT> {};
+template <> struct RootKind<JSFunction *> : SpecificRootKind<JSFunction *, THING_ROOT_OBJECT> {};
+template <> struct RootKind<JSString *> : SpecificRootKind<JSString *, THING_ROOT_STRING> {};
+template <> struct RootKind<JSScript *> : SpecificRootKind<JSScript *, THING_ROOT_SCRIPT> {};
+template <> struct RootKind<jsid> : SpecificRootKind<jsid, THING_ROOT_ID> {};
+template <> struct RootKind<JS::Value> : SpecificRootKind<JS::Value, THING_ROOT_VALUE> {};
 
 struct ContextFriendFields {
     JSRuntime *const    runtime;
@@ -290,7 +299,52 @@ struct ContextFriendFields {
 #endif
 };
 
-} /* namespace JS */
+struct RuntimeFriendFields {
+    /*
+     * If non-zero, we were been asked to call the operation callback as soon
+     * as possible.
+     */
+    volatile int32_t    interrupt;
+
+    /* Limit pointer for checking native stack consumption. */
+    uintptr_t           nativeStackLimit;
+
+    RuntimeFriendFields()
+      : interrupt(0),
+        nativeStackLimit(0) { }
+
+    static const RuntimeFriendFields *get(const JSRuntime *rt) {
+        return reinterpret_cast<const RuntimeFriendFields *>(rt);
+    }
+};
+
+class PerThreadData;
+
+struct PerThreadDataFriendFields
+{
+    PerThreadDataFriendFields();
+
+#if defined(JSGC_ROOT_ANALYSIS) || defined(JSGC_USE_EXACT_ROOTING)
+    /*
+     * Stack allocated GC roots for stack GC heap pointers, which may be
+     * overwritten if moved during a GC.
+     */
+    Rooted<void*> *thingGCRooters[THING_ROOT_LIMIT];
+#endif
+
+    static PerThreadDataFriendFields *get(js::PerThreadData *pt) {
+        return reinterpret_cast<PerThreadDataFriendFields *>(pt);
+    }
+
+    static PerThreadDataFriendFields *getMainThread(JSRuntime *rt) {
+        // mainThread must always appear directly after |RuntimeFriendFields|.
+        // Tested by a JS_STATIC_ASSERT in |jsfriendapi.cpp|
+        return reinterpret_cast<PerThreadDataFriendFields *>(
+            reinterpret_cast<char*>(rt) + sizeof(RuntimeFriendFields));
+    }
+};
+
+} /* namespace js */
 
 #endif /* __cplusplus */
 

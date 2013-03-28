@@ -35,6 +35,49 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
+// Extra action for making a CCSequence or CCSpawn when only adding one action to it.
+class ExtraAction : public CCFiniteTimeAction
+{
+public:
+    static ExtraAction* create();
+    virtual CCObject* copyWithZone(CCZone* pZone);
+    virtual ExtraAction* reverse(void);
+    virtual void update(float time);
+    virtual void step(float dt);
+};
+
+ExtraAction* ExtraAction::create()
+{
+    ExtraAction* pRet = new ExtraAction();
+    if (pRet)
+    {
+        pRet->autorelease();
+    }
+    return pRet;
+}
+
+CCObject* ExtraAction::copyWithZone(CCZone* pZone)
+{
+    CC_UNUSED_PARAM(pZone);
+    ExtraAction* pRet = new ExtraAction();
+    return pRet;
+}
+
+ExtraAction* ExtraAction::reverse(void)
+{
+    return ExtraAction::create();
+}
+
+void ExtraAction::update(float time)
+{
+    CC_UNUSED_PARAM(time);
+}
+
+void ExtraAction::step(float dt)
+{
+    CC_UNUSED_PARAM(dt);
+}
+
 //
 // IntervalAction
 //
@@ -156,49 +199,71 @@ CCSequence* CCSequence::createWithTwoActions(CCFiniteTimeAction *pActionOne, CCF
     return pSequence;
 }
 
-CCFiniteTimeAction* CCSequence::create(CCFiniteTimeAction *pAction1, ...)
+CCSequence* CCSequence::create(CCFiniteTimeAction *pAction1, ...)
 {
     va_list params;
     va_start(params, pAction1);
 
-    CCFiniteTimeAction *pRet = CCSequence::create(pAction1, params);
+    CCSequence *pRet = CCSequence::createWithVariableList(pAction1, params);
 
     va_end(params);
     
     return pRet;
 }
 
-CCFiniteTimeAction* CCSequence::create(CCFiniteTimeAction *pAction1, va_list args)
+CCSequence* CCSequence::createWithVariableList(CCFiniteTimeAction *pAction1, va_list args)
 {
     CCFiniteTimeAction *pNow;
     CCFiniteTimeAction *pPrev = pAction1;
-    
+    bool bOneAction = true;
+
     while (pAction1)
     {
         pNow = va_arg(args, CCFiniteTimeAction*);
         if (pNow)
         {
             pPrev = createWithTwoActions(pPrev, pNow);
+            bOneAction = false;
         }
         else
         {
+            // If only one action is added to CCSequence, make up a CCSequence by adding a simplest finite time action.
+            if (bOneAction)
+            {
+                pPrev = createWithTwoActions(pPrev, ExtraAction::create());
+            }
             break;
         }
     }
     
-    return pPrev;
+    return ((CCSequence*)pPrev);
 }
 
-CCFiniteTimeAction* CCSequence::create(CCArray* arrayOfActions)
+CCSequence* CCSequence::create(CCArray* arrayOfActions)
 {
-    CCFiniteTimeAction* prev = (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(0);
-
-    for (unsigned int i = 1; i < arrayOfActions->count(); ++i)
+    CCSequence* pRet = NULL;
+    do 
     {
-        prev = createWithTwoActions(prev, (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(i));
-    }
+        unsigned  int count = arrayOfActions->count();
+        CC_BREAK_IF(count == 0);
 
-    return prev;
+        CCFiniteTimeAction* prev = (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(0);
+
+        if (count > 1)
+        {
+            for (unsigned int i = 1; i < count; ++i)
+            {
+                prev = createWithTwoActions(prev, (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(i));
+            }
+        }
+        else
+        {
+            // If only one action is added to CCSequence, make up a CCSequence by adding a simplest finite time action.
+            prev = createWithTwoActions(prev, ExtraAction::create());
+        }
+        pRet = (CCSequence*)prev;
+    }while (0);
+    return pRet;
 }
 
 bool CCSequence::initWithTwoActions(CCFiniteTimeAction *pActionOne, CCFiniteTimeAction *pActionTwo)
@@ -303,7 +368,15 @@ void CCSequence::update(float t)
             m_pActions[0]->stop();
         }
     }
-
+	else if(found==0 && m_last==1 )
+	{
+		// Reverse mode ?
+		// XXX: Bug. this case doesn't contemplate when _last==-1, found=0 and in "reverse mode"
+		// since it will require a hack to know if an action is on reverse mode or not.
+		// "step" should be overriden, and the "reverseMode" value propagated to inner Sequences.
+		m_pActions[1]->update(0);
+		m_pActions[1]->stop();
+	}
     // Last action found and it is done.
     if( found == m_last && m_pActions[found]->isDone() )
     {
@@ -539,49 +612,70 @@ CCActionInterval *CCRepeatForever::reverse()
 // Spawn
 //
 
-CCFiniteTimeAction* CCSpawn::create(CCFiniteTimeAction *pAction1, ...)
+CCSpawn* CCSpawn::create(CCFiniteTimeAction *pAction1, ...)
 {
     va_list params;
     va_start(params, pAction1);
 
-    CCFiniteTimeAction *pRet = CCSpawn::create(pAction1, params);
+    CCSpawn *pRet = CCSpawn::createWithVariableList(pAction1, params);
 
     va_end(params);
     
     return pRet;
 }
 
-CCFiniteTimeAction* CCSpawn::create(CCFiniteTimeAction *pAction1, va_list args)
+CCSpawn* CCSpawn::createWithVariableList(CCFiniteTimeAction *pAction1, va_list args)
 {
     CCFiniteTimeAction *pNow;
     CCFiniteTimeAction *pPrev = pAction1;
-    
+    bool bOneAction = true;
+
     while (pAction1)
     {
         pNow = va_arg(args, CCFiniteTimeAction*);
         if (pNow)
         {
             pPrev = createWithTwoActions(pPrev, pNow);
+            bOneAction = false;
         }
         else
         {
+            // If only one action is added to CCSpawn, make up a CCSpawn by adding a simplest finite time action.
+            if (bOneAction)
+            {
+                pPrev = createWithTwoActions(pPrev, ExtraAction::create());
+            }
             break;
         }
     }
 
-    return pPrev;
+    return ((CCSpawn*)pPrev);
 }
 
-CCFiniteTimeAction* CCSpawn::create(CCArray *arrayOfActions)
+CCSpawn* CCSpawn::create(CCArray *arrayOfActions)
 {
-    CCFiniteTimeAction* prev = (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(0);
-
-    for (unsigned int i = 1; i < arrayOfActions->count(); ++i)
+    CCSpawn* pRet = NULL;
+    do 
     {
-        prev = createWithTwoActions(prev, (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(i));
-    }
+        unsigned  int count = arrayOfActions->count();
+        CC_BREAK_IF(count == 0);
+        CCFiniteTimeAction* prev = (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(0);
+        if (count > 1)
+        {
+            for (unsigned int i = 1; i < arrayOfActions->count(); ++i)
+            {
+                prev = createWithTwoActions(prev, (CCFiniteTimeAction*)arrayOfActions->objectAtIndex(i));
+            }
+        }
+        else
+        {
+            // If only one action is added to CCSpawn, make up a CCSpawn by adding a simplest finite time action.
+            prev = createWithTwoActions(prev, ExtraAction::create());
+        }
+        pRet = (CCSpawn*)prev;
+    }while (0);
 
-    return prev;
+    return pRet;
 }
 
 CCSpawn* CCSpawn::createWithTwoActions(CCFiniteTimeAction *pAction1, CCFiniteTimeAction *pAction2)
@@ -765,7 +859,15 @@ void CCRotateTo::startWithTarget(CCNode *pTarget)
     
     // Calculate X
     m_fStartAngleX = pTarget->getRotationX();
-    
+    if (m_fStartAngleX > 0)
+    {
+        m_fStartAngleX = fmodf(m_fStartAngleX, 360.0f);
+    }
+    else
+    {
+        m_fStartAngleX = fmodf(m_fStartAngleX, -360.0f);
+    }
+
     m_fDiffAngleX = m_fDstAngleX - m_fStartAngleX;
     if (m_fDiffAngleX > 180)
     {
@@ -776,7 +878,7 @@ void CCRotateTo::startWithTarget(CCNode *pTarget)
         m_fDiffAngleX += 360;
     }
     
-    // Calculate Y
+    //Calculate Y: It's duplicated from calculating X since the rotation wrap should be the same
     m_fStartAngleY = m_pTarget->getRotationY();
 
     if (m_fStartAngleY > 0)
@@ -900,16 +1002,92 @@ CCActionInterval* CCRotateBy::reverse(void)
 }
 
 //
+// MoveBy
+//
+
+CCMoveBy* CCMoveBy::create(float duration, const CCPoint& deltaPosition)
+{
+    CCMoveBy *pRet = new CCMoveBy();
+    pRet->initWithDuration(duration, deltaPosition);
+    pRet->autorelease();
+
+    return pRet;
+}
+
+bool CCMoveBy::initWithDuration(float duration, const CCPoint& deltaPosition)
+{
+    if (CCActionInterval::initWithDuration(duration))
+    {
+        m_positionDelta = deltaPosition;
+        return true;
+    }
+
+    return false;
+}
+
+CCObject* CCMoveBy::copyWithZone(CCZone *pZone)
+{
+    CCZone* pNewZone = NULL;
+    CCMoveBy* pCopy = NULL;
+    if(pZone && pZone->m_pCopyObject) 
+    {
+        //in case of being called at sub class
+        pCopy = (CCMoveBy*)(pZone->m_pCopyObject);
+    }
+    else
+    {
+        pCopy = new CCMoveBy();
+        pZone = pNewZone = new CCZone(pCopy);
+    }
+
+    CCActionInterval::copyWithZone(pZone);
+
+    pCopy->initWithDuration(m_fDuration, m_positionDelta);
+
+    CC_SAFE_DELETE(pNewZone);
+    return pCopy;
+}
+
+void CCMoveBy::startWithTarget(CCNode *pTarget)
+{
+    CCActionInterval::startWithTarget(pTarget);
+    m_previousPosition = m_startPosition = pTarget->getPosition();
+}
+
+CCActionInterval* CCMoveBy::reverse(void)
+{
+    return CCMoveBy::create(m_fDuration, ccp( -m_positionDelta.x, -m_positionDelta.y));
+}
+
+
+void CCMoveBy::update(float t)
+{
+    if (m_pTarget)
+    {
+#if CC_ENABLE_STACKABLE_ACTIONS
+        CCPoint currentPos = m_pTarget->getPosition();
+        CCPoint diff = ccpSub(currentPos, m_previousPosition);
+        m_startPosition = ccpAdd( m_startPosition, diff);
+        CCPoint newPos =  ccpAdd( m_startPosition, ccpMult(m_positionDelta, t) );
+        m_pTarget->setPosition(newPos);
+        m_previousPosition = newPos;
+#else
+        m_pTarget->setPosition(ccpAdd( m_startPosition, ccpMult(m_positionDelta, t)));
+#endif // CC_ENABLE_STACKABLE_ACTIONS
+    }
+}
+
+//
 // MoveTo
 //
 
 CCMoveTo* CCMoveTo::create(float duration, const CCPoint& position)
 {
-    CCMoveTo *pMoveTo = new CCMoveTo();
-    pMoveTo->initWithDuration(duration, position);
-    pMoveTo->autorelease();
+    CCMoveTo *pRet = new CCMoveTo();
+    pRet->initWithDuration(duration, position);
+    pRet->autorelease();
 
-    return pMoveTo;
+    return pRet;
 }
 
 bool CCMoveTo::initWithDuration(float duration, const CCPoint& position)
@@ -938,88 +1116,20 @@ CCObject* CCMoveTo::copyWithZone(CCZone *pZone)
         pZone = pNewZone = new CCZone(pCopy);
     }
 
-    CCActionInterval::copyWithZone(pZone);
+    CCMoveBy::copyWithZone(pZone);
 
     pCopy->initWithDuration(m_fDuration, m_endPosition);
-
+    
     CC_SAFE_DELETE(pNewZone);
     return pCopy;
 }
 
 void CCMoveTo::startWithTarget(CCNode *pTarget)
 {
-    CCActionInterval::startWithTarget(pTarget);
-    m_startPosition = pTarget->getPosition();
-    m_delta = ccpSub(m_endPosition, m_startPosition);
+    CCMoveBy::startWithTarget(pTarget);
+    m_positionDelta = ccpSub( m_endPosition, pTarget->getPosition() );
 }
 
-void CCMoveTo::update(float time)
-{
-    if (m_pTarget)
-    {
-        m_pTarget->setPosition(ccp(m_startPosition.x + m_delta.x * time,
-            m_startPosition.y + m_delta.y * time));
-    }
-}
-
-//
-// MoveBy
-//
-
-CCMoveBy* CCMoveBy::create(float duration, const CCPoint& position)
-{
-    CCMoveBy *pMoveBy = new CCMoveBy();
-    pMoveBy->initWithDuration(duration, position);
-    pMoveBy->autorelease();
-
-    return pMoveBy;
-}
-
-bool CCMoveBy::initWithDuration(float duration, const CCPoint& position)
-{
-    if (CCActionInterval::initWithDuration(duration))
-    {
-        m_delta = position;
-        return true;
-    }
-
-    return false;
-}
-
-CCObject* CCMoveBy::copyWithZone(CCZone *pZone)
-{
-    CCZone* pNewZone = NULL;
-    CCMoveBy* pCopy = NULL;
-    if(pZone && pZone->m_pCopyObject) 
-    {
-        //in case of being called at sub class
-        pCopy = (CCMoveBy*)(pZone->m_pCopyObject);
-    }
-    else
-    {
-        pCopy = new CCMoveBy();
-        pZone = pNewZone = new CCZone(pCopy);
-    }
-
-    CCMoveTo::copyWithZone(pZone);
-
-    pCopy->initWithDuration(m_fDuration, m_delta);
-    
-    CC_SAFE_DELETE(pNewZone);
-    return pCopy;
-}
-
-void CCMoveBy::startWithTarget(CCNode *pTarget)
-{
-    CCPoint dTmp = m_delta;
-    CCMoveTo::startWithTarget(pTarget);
-    m_delta = dTmp;
-}
-
-CCActionInterval* CCMoveBy::reverse(void)
-{
-    return CCMoveBy::create(m_fDuration, ccp(-m_delta.x, -m_delta.y));
-}
 
 //
 // CCSkewTo
@@ -1250,19 +1360,32 @@ CCObject* CCJumpBy::copyWithZone(CCZone *pZone)
 void CCJumpBy::startWithTarget(CCNode *pTarget)
 {
     CCActionInterval::startWithTarget(pTarget);
-    m_startPosition = pTarget->getPosition();
+    m_previousPos = m_startPosition = pTarget->getPosition();
 }
 
-void CCJumpBy::update(float time)
+void CCJumpBy::update(float t)
 {
     // parabolic jump (since v0.8.2)
     if (m_pTarget)
     {
-        float frac = fmodf(time * m_nJumps, 1.0f);
+        float frac = fmodf( t * m_nJumps, 1.0f );
         float y = m_height * 4 * frac * (1 - frac);
-        y += m_delta.y * time;
-        float x = m_delta.x * time;
-        m_pTarget->setPosition(ccp(m_startPosition.x + x, m_startPosition.y + y));
+        y += m_delta.y * t;
+
+        float x = m_delta.x * t;
+#if CC_ENABLE_STACKABLE_ACTIONS
+        CCPoint currentPos = m_pTarget->getPosition();
+
+        CCPoint diff = ccpSub( currentPos, m_previousPos );
+        m_startPosition = ccpAdd( diff, m_startPosition);
+
+        CCPoint newPos = ccpAdd( m_startPosition, ccp(x,y));
+        m_pTarget->setPosition(newPos);
+
+        m_previousPos = newPos;
+#else
+        m_pTarget->setPosition(ccpAdd( m_startPosition, ccp(x,y)));
+#endif // !CC_ENABLE_STACKABLE_ACTIONS
     }
 }
 
@@ -1353,7 +1476,7 @@ bool CCBezierBy::initWithDuration(float t, const ccBezierConfig& c)
 void CCBezierBy::startWithTarget(CCNode *pTarget)
 {
     CCActionInterval::startWithTarget(pTarget);
-    m_startPosition = pTarget->getPosition();
+    m_previousPosition = m_startPosition = pTarget->getPosition();
 }
 
 CCObject* CCBezierBy::copyWithZone(CCZone *pZone)
@@ -1395,7 +1518,19 @@ void CCBezierBy::update(float time)
 
         float x = bezierat(xa, xb, xc, xd, time);
         float y = bezierat(ya, yb, yc, yd, time);
-        m_pTarget->setPosition(ccpAdd(m_startPosition, ccp(x, y)));
+
+#if CC_ENABLE_STACKABLE_ACTIONS
+        CCPoint currentPos = m_pTarget->getPosition();
+        CCPoint diff = ccpSub(currentPos, m_previousPosition);
+        m_startPosition = ccpAdd( m_startPosition, diff);
+
+        CCPoint newPos = ccpAdd( m_startPosition, ccp(x,y));
+        m_pTarget->setPosition(newPos);
+
+        m_previousPosition = newPos;
+#else
+        m_pTarget->setPosition(ccpAdd( m_startPosition, ccp(x,y)));
+#endif // !CC_ENABLE_STACKABLE_ACTIONS
     }
 }
 
@@ -2294,7 +2429,9 @@ void CCAnimate::update(float t)
                 //TODO: [[NSNotificationCenter defaultCenter] postNotificationName:CCAnimationFrameDisplayedNotification object:target_ userInfo:dict];
             }
             m_nNextFrame = i+1;
-
+        }
+        // Issue 1438. Could be more than one frame per tick, due to low frame rate or frame delta < 1/FPS
+        else {
             break;
         }
     }
