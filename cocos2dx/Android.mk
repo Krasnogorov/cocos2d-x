@@ -129,7 +129,11 @@ tilemap_parallax_nodes/CCTMXXMLParser.cpp \
 tilemap_parallax_nodes/CCTileMapAtlas.cpp \
 touch_dispatcher/CCTouchDispatcher.cpp \
 touch_dispatcher/CCTouchHandler.cpp \
-touch_dispatcher/CCTouch.cpp
+touch_dispatcher/CCTouch.cpp \
+../scripting/lua/cocos2dx_support/CCLuaEngine.cpp \
+../scripting/lua/cocos2dx_support/Cocos2dxLuaLoader.cpp \
+../scripting/lua/cocos2dx_support/LuaCocos2d.cpp \
+../scripting/lua/cocos2dx_support/tolua_fix.c
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/include \
@@ -144,7 +148,11 @@ LOCAL_EXPORT_LDLIBS := -llog\
 LOCAL_C_INCLUDES := $(LOCAL_PATH) \
                     $(LOCAL_PATH)/include \
                     $(LOCAL_PATH)/kazmath/include \
-                    $(LOCAL_PATH)/platform/android
+                    $(LOCAL_PATH)/platform/android \
+					$(LOCAL_PATH)/../scripting/lua/lua \
+					$(LOCAL_PATH)/../scripting/lua/tolua \
+					$(LOCAL_PATH)/../scripting/lua/cocos2dx_support \
+					$(LOCAL_PATH)/../CocosDenshion/include
 
 LOCAL_LDLIBS := -lGLESv2 \
                 -lEGL \
