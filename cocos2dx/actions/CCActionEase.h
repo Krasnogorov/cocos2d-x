@@ -63,6 +63,7 @@ public:
 
 protected:
     CCActionInterval *m_pOther;
+	CCActionInterval *m_pInner;
 };
 
 /** 

@@ -9,12 +9,12 @@ NS_CC_EXT_BEGIN
 class CCBReader;
 
 class CCMenuLoader : public CCLayerLoader {
-    public:
-        virtual ~CCMenuLoader() {};
-        CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCMenuLoader, loader);
-
-    protected:
-        CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCMenu);
+public:
+	virtual ~CCMenuLoader() {};
+	CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCMenuLoader, loader);
+	
+protected:
+	CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCMenu);
 };
 
 NS_CC_EXT_END

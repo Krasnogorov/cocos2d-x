@@ -10,14 +10,14 @@ NS_CC_EXT_BEGIN
 class CCBReader;
 
 class CCBFileLoader : public CCNodeLoader {
-    public:
-        virtual ~CCBFileLoader() {};
-        CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCBFileLoader, loader);
-
-    protected:
-        CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCBFile);
-
-        virtual void onHandlePropTypeCCBFile(CCNode * pNode, CCNode * pParent, const char * pPropertyName, CCNode * pCCBFileNode, CCBReader * pCCBReader);
+public:
+	virtual ~CCBFileLoader() {};
+	CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCBFileLoader, loader);
+	
+protected:
+	CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCBFile);
+	
+	virtual void onHandlePropTypeCCBFile(CCNode * pNode, CCNode * pParent, const char * pPropertyName, CCNode * pCCBFileNode, CCBReader * pCCBReader);
 };
 
 NS_CC_EXT_END

@@ -20,7 +20,7 @@
 NS_CC_EXT_BEGIN
 
 CCNodeLoaderLibrary::CCNodeLoaderLibrary() {
-
+	
 }
 
 CCNodeLoaderLibrary::~CCNodeLoaderLibrary() {
@@ -84,7 +84,7 @@ static CCNodeLoaderLibrary * sSharedCCNodeLoaderLibrary = NULL;
 CCNodeLoaderLibrary * CCNodeLoaderLibrary::sharedCCNodeLoaderLibrary() {
     if(sSharedCCNodeLoaderLibrary == NULL) {
         sSharedCCNodeLoaderLibrary = new CCNodeLoaderLibrary();
-
+		
         sSharedCCNodeLoaderLibrary->registerDefaultCCNodeLoaders();
     }
     return sSharedCCNodeLoaderLibrary;
@@ -98,7 +98,7 @@ CCNodeLoaderLibrary * CCNodeLoaderLibrary::newDefaultCCNodeLoaderLibrary() {
     CCNodeLoaderLibrary * ccNodeLoaderLibrary = CCNodeLoaderLibrary::library();
     
     ccNodeLoaderLibrary->registerDefaultCCNodeLoaders();
-
+	
     return ccNodeLoaderLibrary;
 }
 

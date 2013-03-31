@@ -9,14 +9,14 @@ NS_CC_EXT_BEGIN
 class CCBReader;
 
 class CCLayerLoader : public CCNodeLoader {
-    public:
-        virtual ~CCLayerLoader() {};
-        CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCLayerLoader, loader);
-
-    protected:
-        CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCLayer);
-
-        virtual void onHandlePropTypeCheck(CCNode * pNode, CCNode * pParent, const char * pPropertyName, bool pCheck, CCBReader * pCCBReader);
+public:
+	virtual ~CCLayerLoader() {};
+	CCB_STATIC_NEW_AUTORELEASE_OBJECT_METHOD(CCLayerLoader, loader);
+	
+protected:
+	CCB_VIRTUAL_NEW_AUTORELEASE_CREATECCNODE_METHOD(CCLayer);
+	
+	virtual void onHandlePropTypeCheck(CCNode * pNode, CCNode * pParent, const char * pPropertyName, bool pCheck, CCBReader * pCCBReader);
 };
 
 NS_CC_EXT_END

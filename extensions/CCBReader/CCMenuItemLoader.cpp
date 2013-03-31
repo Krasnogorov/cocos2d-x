@@ -9,7 +9,7 @@ NS_CC_EXT_BEGIN
 
 void CCMenuItemLoader::onHandlePropTypeBlock(CCNode * pNode, CCNode * pParent, const char * pPropertyName, BlockData * pBlockData, CCBReader * pCCBReader) {
     if(strcmp(pPropertyName, PROPERTY_BLOCK) == 0) {
-        if (NULL != pBlockData) // Add this condition to allow CCMenuItemImage without target/selector predefined 
+        if (NULL != pBlockData) // Add this condition to allow CCMenuItemImage without target/selector predefined
         {
             ((CCMenuItem *)pNode)->setTarget(pBlockData->mTarget, pBlockData->mSELMenuHandler);
         }

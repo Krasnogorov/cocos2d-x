@@ -43,7 +43,7 @@ void CCLayerGradientLoader::onHandlePropTypeBlendFunc(CCNode * pNode, CCNode * p
 void CCLayerGradientLoader::onHandlePropTypePoint(CCNode * pNode, CCNode * pParent, const char * pPropertyName, CCPoint pPoint, CCBReader * pCCBReader) {
     if(strcmp(pPropertyName, PROPERTY_VECTOR) == 0) {
         ((CCLayerGradient *)pNode)->setVector(pPoint);
-
+		
         // TODO Not passed along the ccbi file.
         // ((CCLayerGradient *)pNode)->setCompressedInterpolation(true);
     } else {
