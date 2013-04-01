@@ -610,6 +610,13 @@ void CCTMXMapInfo::startElement(void *ctx, const char *name, const char **atts)
         // CCTMXObjectGroup* objectGroup = (CCTMXObjectGroup*)m_pObjectGroups->lastObject();
         // CCDictionary* dict = (CCDictionary*)objectGroup->getObjects()->lastObject();
         // TODO: dict->setObject:[attributeDict objectForKey:@"points"] forKey:@"polylinePoints"];
+		CCTMXObjectGroup* objectGroup = (CCTMXObjectGroup*)pTMXMapInfo->getObjectGroups()->lastObject();
+        const char* val = valueForKey("points", attributeDict);
+        CCString* obj = new CCString(val);
+        CCDictionary* dict = (CCDictionary*)objectGroup->getObjects()->lastObject();
+        dict->setObject(obj, "polyline");
+        obj->release();
+
     }
 
     if (attributeDict)
