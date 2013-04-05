@@ -70,6 +70,7 @@ Config of cocos2d-x project, per target platform.
 #if defined(WIN32) && defined(_WINDOWS)
     #undef  CC_TARGET_PLATFORM
     #define CC_TARGET_PLATFORM         CC_PLATFORM_WIN32
+	#undef	CC_SUPPORT_PVRTC
 #endif
 
 // linux

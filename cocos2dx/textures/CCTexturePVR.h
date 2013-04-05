@@ -50,7 +50,7 @@ typedef struct _ccPVRTexturePixelFormatInfo {
 	GLenum internalFormat;
 	GLenum format;
 	GLenum type;
-	uint32_t bpp;
+	unsigned int bpp;
 	bool compressed;
 	bool alpha;
 	CCTexture2DPixelFormat ccPixelFormat;

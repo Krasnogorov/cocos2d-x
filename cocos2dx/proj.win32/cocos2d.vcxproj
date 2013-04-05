@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectName>libcocos2d</ProjectName>
-    <ProjectGuid>{98A51BA8-FC3A-415B-AC8F-8C7BD464E93E}</ProjectGuid>
+    <ProjectGuid>{E7813F27-D425-4ED2-929B-685E34FA839D}</ProjectGuid>
     <RootNamespace>cocos2d-x.win32</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -20,10 +20,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -57,7 +59,7 @@
     </PreBuildEvent>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(ProjectDir)..;$(ProjectDir)..\platform\win32;$(ProjectDir)..\platform\third_party\win32\iconv;$(ProjectDir)..\platform\third_party\win32\zlib;$(ProjectDir)..\platform\third_party\win32\libpng;$(ProjectDir)..\platform\third_party\win32\libjpeg;$(ProjectDir)..\platform\third_party\win32\libtiff;$(ProjectDir)..\platform\third_party\win32\libxml2;$(ProjectDir)..\platform\third_party\win32\pthread;$(ProjectDir)..\platform\third_party\win32\OGLES;..\include;$(ProjectDir)..\kazmath\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..;$(ProjectDir)..\platform\win32;$(ProjectDir)..\platform\third_party\win32\iconv;$(ProjectDir)..\platform\third_party\win32\zlib;$(ProjectDir)..\platform\third_party\win32\libpng;$(ProjectDir)..\platform\third_party\win32\libjpeg;$(ProjectDir)..\platform\third_party\win32\libtiff;$(ProjectDir)..\platform\third_party\win32\libxml2;$(ProjectDir)..\platform\third_party\win32\pthread;$(ProjectDir)..\platform\third_party\win32\OGLES;..\include;$(ProjectDir)..\kazmath\include;$(ProjectDir)..\..\scripting\lua\cocos2dx_support;$(ProjectDir)..\..\scripting\lua\lua;$(ProjectDir)..\..\scripting\lua\tolua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;COCOS2DXWIN32_EXPORTS;GL_GLEXT_PROTOTYPES;COCOS2D_DEBUG=1;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -127,6 +129,9 @@ xcopy /Y /Q "$(ProjectDir)..\platform\third_party\win32\libraries\*.*" "$(OutDir
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\CCLuaEngine.cpp" />
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\Cocos2dxLuaLoader.cpp" />
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\LuaCocos2d.cpp" />
     <ClCompile Include="..\base_nodes\CCAtlasNode.cpp" />
     <ClCompile Include="..\base_nodes\CCNode.cpp" />
     <ClCompile Include="..\cocoa\CCAffineTransform.cpp" />
@@ -246,6 +251,9 @@ xcopy /Y /Q "$(ProjectDir)..\platform\third_party\win32\libraries\*.*" "$(OutDir
     <ClCompile Include="..\cocos2d.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\CCLuaEngine.h" />
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\Cocos2dxLuaLoader.h" />
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\LuaCocos2d.h" />
     <ClInclude Include="..\base_nodes\CCAtlasNode.h" />
     <ClInclude Include="..\base_nodes\CCNode.h" />
     <ClInclude Include="..\cocoa\CCAffineTransform.h" />

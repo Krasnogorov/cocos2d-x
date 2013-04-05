@@ -437,6 +437,15 @@
     <ClCompile Include="..\shaders\CCGLProgram.cpp">
       <Filter>shaders</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\CCLuaEngine.cpp">
+      <Filter>script_support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\Cocos2dxLuaLoader.cpp">
+      <Filter>script_support</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\scripting\lua\cocos2dx_support\LuaCocos2d.cpp">
+      <Filter>script_support</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\base_nodes\CCAtlasNode.h">
@@ -886,6 +895,15 @@
     </ClInclude>
     <ClInclude Include="..\shaders\CCGLProgram.h">
       <Filter>shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\CCLuaEngine.h">
+      <Filter>script_support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\Cocos2dxLuaLoader.h">
+      <Filter>script_support</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\scripting\lua\cocos2dx_support\LuaCocos2d.h">
+      <Filter>script_support</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
