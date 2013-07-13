@@ -67,7 +67,7 @@ void CCEditBoxImplAndroid::doAnimationWhenKeyboardMove(float duration, float dis
 
 bool CCEditBoxImplAndroid::initWithSize(const CCSize& size)
 {
-    int fontSize = getFontSizeAccordingHeightJni(size.height-12);
+//    int fontSize = getFontSizeAccordingHeightJni(size.height-12);
     m_pLabel = CCLabelTTF::create("", "", size.height-12);
     m_pLabel->setAnchorPoint(ccp(0, 0));
     m_pLabel->setPosition(ccp(5, 2));
